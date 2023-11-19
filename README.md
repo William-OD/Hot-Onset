@@ -16,10 +16,26 @@ Use 'Full_run.ipynb' to consolidate downloaded raw data and HEK flare list to ca
 * Background Start Time - The start point of the one-minute background window, calculated by my new background-subtraction algorithm.
 * Background End Time - The end point of the one-minute background window, calculated by my new background-subtraction algorithm.
 * Onset Start Time - The start point of the onset, calculated by my onset-selection algorithm.
-* Onset End Time - The start point of the onset, calculated by my onset-selection algorithm.
 * Peak Temp Long - The peak temperature of the flare from the long channel flux.
 * Peak Temp Short - The peak temperature of the flare from the short channel flux.
 * Flare Max Temp - The Maxuimum temperature of the flare.
 * Peak EM Long - The peak emission measure of the flare from the long channel flux.
 * Peak EM short - The peak emission measure of the flare from the short channel flux.
 * Flare Max EM - The maximum emission measure of the flare.
+
+In addition to these, data at given fractions (1/8, 1/6, 1/4, 1/3, 1/2) of time between the 'Onset Start Time' and the 'Peak Time Long' are labelled as:
+* Temp {frac} - The average temperature of the fractional onset period.
+* Temp {frac} Upper - The upper limit of the temperature uncertainty.
+* Temp {frac} Lower - The lower limit of the temperature uncertainty.
+* EM {frac} Error - The uncertainty in emission measure.
+* Tdelta {frac} - The time between the onset start and the fractional onset end.
+
+Additional Data Flags:
+* Background Flag - Set to true if the background subtraction algorithm failed, otherwise flase.
+* FileNotFound Flag - Set to true if the file(s) containing the data for the flare that is being searched don't exist. This is often caused by data gaps in the GOES-15 operations.
+* IndexError Flag - Set to true if there exists an IndexError at any point in the data run. This can happen for a variety of reasons, and exists to provide complete running of the batch.
+
+This data is saved to 'Full_Run_v{version number}.csv'
+
+## Data Analysis
+Analysis of these gathered data points is processed in 'Data_Analysis.ipynb'.
