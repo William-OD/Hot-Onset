@@ -1,3 +1,5 @@
+# Taken from: https://github.com/vsadykov/TEBBS for the comparison of background-subtraction methods.
+
 import numpy
 import datetime
 import os, sys
@@ -9,7 +11,7 @@ import requests
 import wget
 import shutil
 
-# function to read the Temperature-Denomenator array from the file for the corresponding GOES satellite
+# function to read the Temperature-Denominator array from the file for the corresponding GOES satellite
 def read_t_denom_file(gver):
     str_gver = str(gver)
     if (len(str_gver) < 2): str_gver = '0'+str_gver
@@ -398,7 +400,7 @@ def TEBBS_calculate(start_time, end_time, plot_key = 0, sys_win = 0, savitzky_go
     if (savitzky_golay == 1): fluxes = sgsmooth_flux(fluxes, gver)
     flare_peak_time = find_max_sec(timing, fluxes, flare_start_time, flare_end_time)
     if ((int(flare_peak_time) == 0) or (int(flare_peak_time) == int(flare_start_time))):
-        print "The timing is incorrect. Interrupting run for the current flare..."
+        print("The timing is incorrect. Interrupting run for the current flare...")
         return 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0
     Amin, Bmin = extract_min(timing, flare_start_time, flare_peak_time, fluxes)
     bgrid = make_grid(Amin, Bmin)
@@ -478,7 +480,7 @@ def TEBBS_calculate(start_time, end_time, plot_key = 0, sys_win = 0, savitzky_go
         BFluxTime = ftiming_ext[5*flxlength/36 + numpy.argmax(numpy.copy(fluxes_out[5*flxlength/36:5*flxlength/6,1]))]
     else:
         if (len(fluxes_out.shape) > 2):
-            print "ALERT: array reformation. Check the results."
+            print("ALERT: array reformation. Check the results.")
             fluxes_out = numpy.copy(fluxes_out[:,0,:])
         flxlength = len(numpy.copy(fluxes_out[:,0]))
         AFluxMax = numpy.amax(numpy.copy(fluxes_out[flxlength/9:2*flxlength/3,0]))

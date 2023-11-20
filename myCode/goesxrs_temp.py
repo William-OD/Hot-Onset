@@ -1,5 +1,6 @@
 # Functions to get T and EM info out of the GOES/XRS data
-# Based off of https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/goes_tem_calc.pro
+# Original code from Iain Hannah's GitHub Repository: https://github.com/ianan/xrs_example/blob/main/goesxrs_temp.py
+# which is based off of https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/goes_tem_calc.pro
 # and specifically the CHIANTI versions via
 # https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/goes_get_chianti_temp.pro
 # and
@@ -66,6 +67,7 @@ def get_resps(sat=15,cor_not_pho=True,old_ver=False):
 # -----------------------------
 # -----------------------------
 def get_tem(fl,fs,fl_err,fs_err,sat=15,cor_not_pho=True,old_ver=False):
+#  New version of get_tem - Modified heavily to include calculation of weighted errors
     
 #   Returns the T and EM for ratio of fluxes in short/long of GOES/XRS channels
 # 
@@ -87,7 +89,8 @@ def get_tem(fl,fs,fl_err,fs_err,sat=15,cor_not_pho=True,old_ver=False):
 #       EM  - Emission Measure in cm^{-3}
 # 
 #   NOTE -  No longer need scaling for GOES16/17 as was correct but GOES13/15 short resp wrong (now fixed)
-# 
+
+
 
 #   Get the TR to work out the EM
     resps, resptmk=get_resps(sat,cor_not_pho,old_ver)
@@ -102,8 +105,8 @@ def get_tem(fl,fs,fl_err,fs_err,sat=15,cor_not_pho=True,old_ver=False):
     gfs=np.array(fs)
     gfl=np.array(fl)
     grat=np.array(gfs/gfl)
-    grat[grat < resprat.min()]=np.nan #convert to np.nan??
-    grat[grat > resprat.max()]=np.nan #convert to np.nan??
+    grat[grat < resprat.min()]=np.nan 
+    grat[grat > resprat.max()]=np.nan 
 
 # Calculating upper and lower bounds for the ratios based on uncertainties
     gfs_errs = np.array(fs_err)
@@ -111,10 +114,6 @@ def get_tem(fl,fs,fl_err,fs_err,sat=15,cor_not_pho=True,old_ver=False):
     grat_err = grat * np.sqrt((gfs_errs/gfs)**2 + (gfl_errs/gfl)**2) # Propagating errors properly
     grat_err_upper = grat + grat_err
     grat_err_lower = grat - grat_err
-    # grat_err_upper[grat_err_upper < resprat.min()]=np.nan #convert to np.nan??
-    # grat_err_upper[grat_err_upper > resprat.max()]=np.nan #convert to np.nan??
-    # grat_err_lower[grat_err_lower < resprat.min()]=np.nan #convert to np.nan??
-    # grat_err_lower[grat_err_lower > resprat.max()]=np.nan #convert to np.nan??
 
 #   Work out the temperature 
     tmk=np.array(rat_func(grat))
@@ -124,9 +123,6 @@ def get_tem(fl,fs,fl_err,fs_err,sat=15,cor_not_pho=True,old_ver=False):
 #   Use scipy cubic spline interpolation
     tr18_func=interpolate.interp1d(resptmk,resps[:,0],kind='cubic')
 #   Can't use TMK values at/outside the range, so
-#   (might this causes issues - better way of doing this??)
-    # tmk[tmk < resptmk.min()]=1.0001
-    # tmk[tmk >resptmk.max()]=resptmk.max()
     tmk[tmk < resptmk.min()]=np.nan
     tmk[tmk > resptmk.max()]=np.nan
 
@@ -137,7 +133,7 @@ def get_tem(fl,fs,fl_err,fs_err,sat=15,cor_not_pho=True,old_ver=False):
     em[em < 0]=np.nan
     em[tmk <= 1.0001]=np.nan
 
-#NEED TO STILL CALCULATE BOUNDS FOR EM
+# Calculating upper and lower bounds for the EM based on uncertainties
     resp_upper = np.array(tr18_func(tmk_upper))
     resp_lower = np.array(tr18_func(tmk_lower))
     resp_avg = (resp_upper - resp_lower)/2 # Averaging upper and lower limits of response to get an uncertainty
