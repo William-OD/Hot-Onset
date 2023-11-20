@@ -48,5 +48,6 @@ This data is saved to 'Full_Run_v{version number}.csv' in the Processed_Run_Data
 Analysis of these gathered data points is processed in 'Data_Analysis.ipynb'. 
 
 
-Further documentation for this project is incomplete and will be updated in the near future. 
+Further documentation for this section is incomplete and will be updated in the near future. 
+
 
