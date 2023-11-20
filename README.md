@@ -2,6 +2,7 @@
 Code and analysis from my MSci Project into the hot onset of Solar Flares. Information on the methodology of the algorithms, as well as results and analysis of data can be found in my Masters Thesis at: {Placeholder}
 This project includes a new background-subtraction algorithm which is sensitive to low GOES XRS fluxes, as well as method for determining the hot onset phase of a solar flare.
 
+
 Usage of all content in this repository is available for research purposes, as long as creditation is given to: William O'Donnell, University of Glasgow.
 
 ## Downloading GOES XRS data
@@ -38,7 +39,7 @@ Additional Data Flags:
 * FileNotFound Flag - Set to true if the file(s) containing the data for the flare that is being searched don't exist. This is often caused by data gaps in the GOES-15 operations.
 * IndexError Flag - Set to true if there exists an IndexError at any point in the data run. This can happen for a variety of reasons, and exists to provide complete running of the batch.
 
-This data is saved to 'Full_Run_v{version number}.csv'
+This data is saved to 'Full_Run_v{version number}.csv' in the Processed_Run_Data folder.
 
 ## Data Analysis
 Analysis of these gathered data points is processed in 'Data_Analysis.ipynb'. 
