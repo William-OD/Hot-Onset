@@ -40,4 +40,7 @@ Additional Data Flags:
 This data is saved to 'Full_Run_v{version number}.csv'
 
 ## Data Analysis
-Analysis of these gathered data points is processed in 'Data_Analysis.ipynb'.
+Analysis of these gathered data points is processed in 'Data_Analysis.ipynb'. 
+
+
+Further documentation for this project is incomplete and will be updated in the near future. 
