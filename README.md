@@ -4,7 +4,7 @@ This project includes a new background-subtraction algorithm which is sensitive 
 
 All directory paths will have to be re-shuffled for use on your local machine. I have re-organsied this repo for readability, however the directory paths between each file may no longer match up. 
 
-Usage of all content in this repository was created by  William O'Donnell (University of Glasgow), and is freely available for research purposes, as long as creditation is given. This is with exception of:
+Usage of all content in this repository was created and owned by  William O'Donnell (University of Glasgow), and is freely available for research purposes so long as creditation is given. This is with exception of:
 * The 'Code/TEBBS.py' file which has not been edited, and was saved for this repository for a comparison study (original repository found at:  https://github.com/vsadykov/TEBBS)
 * The 'Code/goesxrs_temp.py' file whose original author was Dr Iain Hannah (University of Glasgow), which was lightly edited to include uncertainty calculations and some data handling.
 
