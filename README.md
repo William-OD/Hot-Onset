@@ -4,15 +4,16 @@ This project includes a new background-subtraction algorithm which is sensitive 
 
 
 Usage of all content in this repository is available for research purposes, as long as creditation is given to: William O'Donnell, University of Glasgow.
+# Code
 
-## Downloading GOES XRS data
+### Downloading GOES XRS data
 Can use 'Bulk_Downloads.ipynb' to use wget to bulk download GOES XRS data from https://www.ncei.noaa.gov/data/goes-space-environment-monitor/access/science/xrs/ to a specified data directory. There are, of course, other ways of downloading this flare data locally.
 
-## Generating a Flare List of Relevant Flare Information.
+### Generating a Flare List of Relevant Flare Information.
 Use 'Generating_HEK.ipynb' to generate a list of flares and information from the SSW Latest events and GOES databases through HEK.
 This also performs some simple post-processing to the flare list too remove duplicates and set up a proximity flag for flares that start within 30 minutes of another flare ending.
 
-## Calculation of Background, Onset Times and Precise Calculation of Start and Peak times.
+### Calculation of Background, Onset Times and Precise Calculation of Start and Peak times.
 Use 'Full_run.ipynb' to consolidate downloaded raw data and HEK flare list to calculate the following information for each flare:
 * Peak Time Long - The time in which the XRS-B channel data is at it's peak flux.
 * Peak Time Short - The time in which the XRS-A channel data is at it's peak flux.
@@ -41,7 +42,7 @@ Additional Data Flags:
 
 This data is saved to 'Full_Run_v{version number}.csv' in the Processed_Run_Data folder.
 
-## Data Analysis
+### Data Analysis
 Analysis of these gathered data points is processed in 'Data_Analysis.ipynb'. 
 
 
