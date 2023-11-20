@@ -4,7 +4,9 @@ This project includes a new background-subtraction algorithm which is sensitive 
 
 All directory paths will have to be re-shuffled for use on your local machine. I have re-organsied this repo for readability, however the directory paths between each file may no longer match up. 
 
-Usage of all content in this repository is available for research purposes, as long as creditation is given to: William O'Donnell, University of Glasgow.
+Usage of all content in this repository was created by  William O'Donnell (University of Glasgow), and is freely available for research purposes, as long as creditation is given. This is with exception of:
+* The 'Code/TEBBS.py' file which has not been edited, and was saved for this repository for a comparison study (original repository found at:  https://github.com/vsadykov/TEBBS)
+* The 'Code/goesxrs_temp.py' file whose original author was Dr Iain Hannah (University of Glasgow), which was lightly edited to include uncertainty calculations and some data handling.
 
 ## Downloading GOES XRS data
 Can use 'Bulk_Downloads.ipynb' to use wget to bulk download GOES XRS data from https://www.ncei.noaa.gov/data/goes-space-environment-monitor/access/science/xrs/ to a specified data directory. There are, of course, other ways of downloading this flare data locally.
