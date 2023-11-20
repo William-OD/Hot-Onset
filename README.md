@@ -11,7 +11,7 @@ Can use 'Bulk_Downloads.ipynb' to use wget to bulk download GOES XRS data from h
 Use 'Generating_HEK.ipynb' to generate a list of flares and information from the SSW Latest events and GOES databases through HEK.
 This also performs some simple post-processing to the flare list too remove duplicates and set up a proximity flag for flares that start within 30 minutes of another flare ending.
 
-## Calculation of Onset Times and Precise Calculation of Start and Peak times.
+## Calculation of Background, Onset Times and Precise Calculation of Start and Peak times.
 Use 'Full_run.ipynb' to consolidate downloaded raw data and HEK flare list to calculate the following information for each flare:
 * Peak Time Long - The time in which the XRS-B channel data is at it's peak flux.
 * Peak Time Short - The time in which the XRS-A channel data is at it's peak flux.
