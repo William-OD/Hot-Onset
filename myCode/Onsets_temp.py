@@ -1,6 +1,23 @@
+# William O'Donnell
+# Date: March 2022
+# 
+# Functions: 
+#   data_download(fl_data)  - fetches the GOES data for a given flare, given the start and end times of the flare
+#   
+#
+#
+#
+#
+#
+#
+#
+# 
+#
+# ----------------------------------------------------------------------------------------------
 import numpy as np
 import pandas as pd
 from astropy.time import Time, TimeDelta
+# ----------------------------------------------------------------------------------------------
 
 import re
 from datetime import time
@@ -103,6 +120,7 @@ def background(data_054, data_18, start_time, peak_time):
 def scaled_onset(onset_start, true_peakt, n):   
     onset_end = Time(onset_start) + (Time(true_peakt)-Time(onset_start))/n
     return onset_end.datetime
+
 
 # Function to determine the average flux of a pre-calculated onset interval for both channels
 # Then uses goesxrs.temp.py fucntion to determine the temperature and emission measure of this flux value.
