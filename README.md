@@ -1,5 +1,8 @@
 # Hot-Onset
 Code and analysis from my MSci Project into the hot onset of Solar Flares. Information on the methodology of the algorithms, as well as results and analysis of data can be found in my Masters Thesis at: {Placeholder}
+This project includes a new background-subtraction algorithm which is sensitive to low GOES XRS fluxes, as well as method for determining the hot onset phase of a solar flare.
+
+Usage of all content in this repository is available for research purposes, as long as creditation is given to: William O'Donnell, University of Glasgow.
 
 ## Downloading GOES XRS data
 Can use 'Bulk_Downloads.ipynb' to use wget to bulk download GOES XRS data from https://www.ncei.noaa.gov/data/goes-space-environment-monitor/access/science/xrs/ to a specified data directory. There are, of course, other ways of downloading this flare data locally.
@@ -8,7 +11,7 @@ Can use 'Bulk_Downloads.ipynb' to use wget to bulk download GOES XRS data from h
 Use 'Generating_HEK.ipynb' to generate a list of flares and information from the SSW Latest events and GOES databases through HEK.
 This also performs some simple post-processing to the flare list too remove duplicates and set up a proximity flag for flares that start within 30 minutes of another flare ending.
 
-## Calculation of Onset Times and Precise Calculation of Start and Peak times.
+## Calculation of Background, Onset Times and Precise Calculation of Start and Peak times.
 Use 'Full_run.ipynb' to consolidate downloaded raw data and HEK flare list to calculate the following information for each flare:
 * Peak Time Long - The time in which the XRS-B channel data is at it's peak flux.
 * Peak Time Short - The time in which the XRS-A channel data is at it's peak flux.
@@ -38,4 +41,7 @@ Additional Data Flags:
 This data is saved to 'Full_Run_v{version number}.csv'
 
 ## Data Analysis
-Analysis of these gathered data points is processed in 'Data_Analysis.ipynb'.
+Analysis of these gathered data points is processed in 'Data_Analysis.ipynb'. 
+
+
+Further documentation for this project is incomplete and will be updated in the near future. 
