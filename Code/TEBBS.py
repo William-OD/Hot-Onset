@@ -1,4 +1,4 @@
-# Taken from: https://github.com/vsadykov/TEBBS for the comparison of background-subtraction methods.
+# Taken directly from: https://github.com/vsadykov/TEBBS for the comparison of background-subtraction methods. Not editied or modified in any way by me.
 
 import numpy
 import datetime
