@@ -2,6 +2,7 @@
 Code and analysis from my MSci Project into the hot onset of Solar Flares. Information on the methodology of the algorithms, as well as results and analysis of data can be found in my Masters Thesis at: {Placeholder}
 This project includes a new background-subtraction algorithm which is sensitive to low GOES XRS fluxes, as well as method for determining the hot onset phase of a solar flare.
 
+All directory paths will have to be re-shuffled for use on your local machine. I have re-organsied this repo for readability, however the directory paths between each file may no longer match up. 
 
 Usage of all content in this repository is available for research purposes, as long as creditation is given to: William O'Donnell, University of Glasgow.
 
