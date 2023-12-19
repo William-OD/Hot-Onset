@@ -1,2 +1,5 @@
 # hot_onset venv (reuqirements.txt is available in the repo)
 hot_onset
+
+#PyCache
+__pycache__
