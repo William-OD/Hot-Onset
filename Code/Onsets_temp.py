@@ -1,18 +1,6 @@
 # William O'Donnell
 # Date: March 2022
 # 
-# Functions: 
-#   data_download(fl_data)  - fetches the GOES data for a given flare, given the start and end times of the flare
-#   
-#
-#
-#
-#
-#
-#
-#
-# 
-#
 # ----------------------------------------------------------------------------------------------
 import numpy as np
 import pandas as pd
@@ -28,7 +16,14 @@ from sunpy.net import Fido
 from scipy import signal
 import goesxrs_temp as gtem
 
-def data_download(fl_data):
+def data_download(fl_data, raw_data_dir):
+    """
+    Fetches the GOES data for a given flare, given the start and end times of the flare.
+    
+    Parameters:
+    fl_data (DataFrame): A DataFrame containing flare data with start, peak, and end times.
+    """
+    
     #Imports one row of a table with start, peak, end times..
     # Want data for +/-10 mins of flare, using astopy time to do this (easier sunpy way?)
     gtstart=Time(fl_data["event_starttime"],scale='utc')-TimeDelta(10*60,format='sec')
@@ -37,12 +32,24 @@ def data_download(fl_data):
     # Search and get the XRS data
     tflrange=a.Time(gtstart.iso,gtend.iso)
     rg15 = Fido.search(tflrange, a.Instrument("XRS"), a.goes.SatelliteNumber(15))
-    fg15 = Fido.fetch(rg15,path=data_dir)
+    fg15 = Fido.fetch(rg15,path=raw_data_dir)
 
 
 # Function to truncate the data and output truncated data in 2s and 10s sampling
 # Modified to have the first window begin at 5 mins after the posted start time.
 def bck_truncate(short_data,long_data,fl_startt,startt = 60, endt = 0):
+    """
+    Truncates the data and outputs truncated data in 2s and 10s sampling.
+    The first window begins at 5 mins after the posted start time.
+    
+    Parameters:
+    short_data (DataFrame): Short channel data.
+    long_data (DataFrame): Long channel data.
+    fl_startt (datetime): Start time of the flare.
+    startt (int, optional): Start time of the truncation window. Defaults to 60.
+    endt (int, optional): End time of the truncation window. Defaults to 0.
+    """
+    
     bckstart=Time(fl_startt,scale='utc')+TimeDelta(300,format='sec')-TimeDelta(startt,format='sec')
     bckend=Time(fl_startt,scale='utc')+TimeDelta(300,format='sec')-TimeDelta(endt, format='sec')
     bcktime=a.Time(bckstart.iso,bckend.iso)
@@ -54,6 +61,15 @@ def bck_truncate(short_data,long_data,fl_startt,startt = 60, endt = 0):
 # Function to take the raw data and determine a suitable 1-minute background based on 
 # variance fluctuations
 def background(data_054, data_18, start_time, peak_time):
+    """
+    Takes the raw data and determines a suitable 1-minute background based on variance fluctuations.
+    
+    Parameters:
+    data_054 (DataFrame): Short channel data.
+    data_18 (DataFrame): Long channel data.
+    start_time (datetime): Start time of the flare.
+    peak_time (datetime): Peak time of the flare.
+    """
     backg_flag = False
 
     srch_start=Time(start_time, scale='utc')-TimeDelta(300,format='sec')
@@ -117,7 +133,16 @@ def background(data_054, data_18, start_time, peak_time):
 
 # Function to take the start of a fixed onset (either the end of background or 1/8th into the impulsive phase)
 # and calculate the end time of a fixed fraction of the impulsive phase based on n.
-def scaled_onset(onset_start, true_peakt, n):   
+def scaled_onset(onset_start, true_peakt, n): 
+    """
+    Takes the start of a fixed onset (either the end of background or 1/8th into the impulsive phase)
+    and calculates the end time of a fixed fraction of the impulsive phase based on n.
+    
+    Parameters:
+    onset_start (datetime): Start time of the onset.
+    true_peakt (datetime): True peak time of the flare.
+    n (int): Fraction of the impulsive phase.
+    """
     onset_end = Time(onset_start) + (Time(true_peakt)-Time(onset_start))/n
     return onset_end.datetime
 
@@ -125,6 +150,20 @@ def scaled_onset(onset_start, true_peakt, n):
 # Function to determine the average flux of a pre-calculated onset interval for both channels
 # Then uses goesxrs.temp.py fucntion to determine the temperature and emission measure of this flux value.
 def onset_tem(short_raw, long_raw, short_backsub, long_backsub, onset_start, onset_end, bck_short_std, bck_long_std): 
+    """
+    Determines the average flux of a pre-calculated onset interval for both channels.
+    Then uses goesxrs.temp.py function to determine the temperature and emission measure of this flux value.
+    
+    Parameters:
+    short_raw (DataFrame): Raw short channel data.
+    long_raw (DataFrame): Raw long channel data.
+    short_backsub (DataFrame): Background subtracted short channel data.
+    long_backsub (DataFrame): Background subtracted long channel data.
+    onset_start (datetime): Start time of the onset.
+    onset_end (datetime): End time of the onset.
+    bck_short_std (float): Standard deviation of the short channel background.
+    bck_long_std (float): Standard deviation of the long channel background.
+    """
     trunc_054_flux_bck = short_backsub.truncate(onset_start, onset_end)
     trunc_18_flux_bck = long_backsub.truncate(onset_start, onset_end)
     trunc_054_flux_raw = short_raw.truncate(onset_start, onset_end)
@@ -163,6 +202,15 @@ def onset_tem(short_raw, long_raw, short_backsub, long_backsub, onset_start, ons
 
 # Fancy Onset Calculation Function
 def onset_times(df_short_bcksub, background_end, peak_time, bck_sigma):
+    """
+    Calculates the onset times.
+    
+    Parameters:
+    df_short_bcksub (DataFrame): Background subtracted short channel data.
+    background_end (datetime): End time of the background.
+    peak_time (datetime): Peak time of the flare.
+    bck_sigma (float): Standard deviation of the background.
+    """
    
     onset_flag = False
     

@@ -21,76 +21,102 @@
 # 23-05-2022    IGH    Updated with new response (CHIANTI v10 and G13/15 short fix)
 #                      Default loads new response, but old_ver=True gives 20200812 version
 # 18-07-2022    IGH    Fixed get_tem() bug that loaded default response only for the EM calc
-# -----------------------------
+#
+# 16-03-2023    WEO    Added temperature and emission measure uncertainty calculations
+# 16-12-2023    WEO    Added in docstring documentation and additional comments
+#-----------------------------------------------
+#-----------------------------------------------
+
 import numpy as np
 from scipy import interpolate
 from astropy.io import fits
-# -----------------------------
-# -----------------------------
-def get_resps(sat=15,cor_not_pho=True,old_ver=False):
-#   Returns the the GOES/XRS temperature response functions for long and short channels
-# 
-#   Response calculated in sswidl:
-#       https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/buildresponse/goes_chianti_response.pro
-#   the response fits is always called "goes_chianti_response_latest.fits" now
-#   Version have here is from 21-05-2022 and v10 CHIANTI:
-#       https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/goes_chianti_response_latest.fits
-# 
-#   Input:
-#       sat - Which GOES satellite to use? (default 15)
-#       cor_not_pho: - Use coronal not photospheric abundances (default True)
-#       old_ver - Use previous responses of 20200812 + wrong G13/15 short: (default False) - just for testing
-#   Output:
-#       resps[:,0] - Temp resp for 1-8\AA in units of 10^{-55} W m^{-2} cm^{3}
-#       resps[:,1] - Temp resp for 0.5-4\AA in units of 10^{-55} W m^{-2} cm^{3}
-#       resptmk    - Temp binning of TR ratio in MK
+#-----------------------------------------------
+#-----------------------------------------------
 
+def get_resps(sat=15,cor_not_pho=True,old_ver=False):
+    """
+    Returns the GOES/XRS temperature response functions for long and short channels.
+
+    The response is calculated in sswidl:
+    https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/buildresponse/goes_chianti_response.pro
+    The response fits is always called "goes_chianti_response_latest.fits" now.
+    Version have here is from 21-05-2022 and v10 CHIANTI:
+    https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/goes_chianti_response_latest.fits
+
+    Parameters:
+    sat (int, optional): Which GOES satellite to use? Defaults to 15.
+    cor_not_pho (bool, optional): Use coronal not photospheric abundances. Defaults to True.
+    old_ver (bool, optional): Use previous responses of 20200812 + wrong G13/15 short. Defaults to False.
+
+    Returns:
+    resps (numpy.ndarray): Temperature response for 1-8\AA and 0.5-4\AA in units of 10^{-55} W m^{-2} cm^{3}.
+    resptmk (numpy.ndarray): Temperature binning of TR ratio in MK.
+    """
+
+    # Check if old version is to be used
     if old_ver:
+        # Use old response file
         rfile='goes_chianti_resp_20200812.fits'
     else:
+        # Use latest response file
         rfile='goes_chianti_response_latest.fits'
+    
+    # Open the response file
     hdulist = fits.open(rfile)
+    # Get the data from the file
     respdat=hdulist[1].data
+    # Close the file
     hdulist.close()
 
+    # Get the temperature data for the specified satellite
     resptmk=np.array(respdat["TEMP_MK"][sat-1])
     
+    # Check if coronal abundances are to be used
     if cor_not_pho:
         abdun="COR"
     else:
+        # Use photospheric abundances
         abdun="PHO"  
+    
+    # Initialize response array
     resps=np.empty((101,2))
+    # Get the long and short channel responses
     resps[:,0]=respdat["FLONG_"+abdun][sat-1]
     resps[:,1]=respdat["FSHORT_"+abdun][sat-1]
    
+    # Return the responses and temperature data
     return resps, resptmk
-# -----------------------------
-# -----------------------------
+#-----------------------------------------------
+#-----------------------------------------------
+
 def get_tem(fl,fs,fl_err,fs_err,sat=15,cor_not_pho=True,old_ver=False):
-#  New version of get_tem - Modified heavily to include calculation of weighted errors
-    
-#   Returns the T and EM for ratio of fluxes in short/long of GOES/XRS channels
-# 
-#   This comes from https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/goes_tem_calc.pro
-#   Response calculated in sswidl:
-#       https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/buildresponse/goes_chianti_response.pro
-#   the response fits is always called "goes_chianti_response_latest.fits" now
-#   Version have here is from 21-05-2022 and v10 CHIANTI:
-#       https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/goes_chianti_response_latest.fits
-#
-#   Input:
-#       fl - GOES/XRS flux in long channel, 1-8\AA no scaling, Wm^{-2}
-#       fs - GOES/XRS flux in short channel,0.5-4\AA scaling, Wm^{-2}
-#            Single number, or array
-#       sat - Which GOES satellite to use? (default 15)
-#       cor_not_pho: - Use coronal not photospheric abundances (default True)
-#   Output:
-#       TMK - Temperature in MK
-#       EM  - Emission Measure in cm^{-3}
-# 
+    """
+    Returns the temperature and emission measure for ratio of fluxes in short/long of GOES/XRS channels.
+
+    This function is based on the script at https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/goes_tem_calc.pro
+    The response is calculated in sswidl:
+    https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/buildresponse/goes_chianti_response.pro
+    The response fits is always called "goes_chianti_response_latest.fits" now.
+    Version have here is from 21-05-2022 and v10 CHIANTI:
+    https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/goes_chianti_response_latest.fits
+
+    Parameters:
+    fl (float or array): GOES/XRS flux in long channel, 1-8\AA no scaling, Wm^{-2}.
+    fs (float or array): GOES/XRS flux in short channel,0.5-4\AA scaling, Wm^{-2}.
+    fl_err (float or array): Uncertainty in the long channel flux.
+    fs_err (float or array): Uncertainty in the short channel flux.
+    sat (int, optional): Which GOES satellite to use? Defaults to 15.
+    cor_not_pho (bool, optional): Use coronal not photospheric abundances. Defaults to True.
+    old_ver (bool, optional): Use previous responses of 20200812 + wrong G13/15 short. Defaults to False.
+
+    Returns:
+    tmk (numpy.ndarray): Temperature in MK.
+    em (numpy.ndarray): Emission Measure in cm^{-3}.
+    tmk_upper (numpy.ndarray): Upper bound of the temperature in MK.
+    tmk_lower (numpy.ndarray): Lower bound of the temperature in MK.
+    em_err (numpy.ndarray): Uncertainty in the emission measure.
+    """
 #   NOTE -  No longer need scaling for GOES16/17 as was correct but GOES13/15 short resp wrong (now fixed)
-
-
 
 #   Get the TR to work out the EM
     resps, resptmk=get_resps(sat,cor_not_pho,old_ver)
@@ -134,35 +160,38 @@ def get_tem(fl,fs,fl_err,fs_err,sat=15,cor_not_pho=True,old_ver=False):
     em[tmk <= 1.0001]=np.nan
 
 # Calculating upper and lower bounds for the EM based on uncertainties
-    resp_upper = np.array(tr18_func(tmk_upper))
+    resp_upper = np.array(tr18_func(tmk_upper)) 
     resp_lower = np.array(tr18_func(tmk_lower))
     resp_avg = (resp_upper - resp_lower)/2 # Averaging upper and lower limits of response to get an uncertainty
     em_err = em*np.sqrt((resp_avg/tr18_func(tmk))**2 + (gfl_errs/gfl)**2) #propagating uncertainty
     
     return tmk, em, tmk_upper, tmk_lower, em_err
-# -----------------------------
-# -----------------------------
+#-----------------------------------------------
+#-----------------------------------------------
+
 def get_tem_old(fl,fs,sat=15,cor_not_pho=True,old_ver=False):
     
-#   Returns the T and EM for ratio of fluxes in short/long of GOES/XRS channels
-# 
-#   This comes from https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/goes_tem_calc.pro
-#   Response calculated in sswidl:
-#       https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/buildresponse/goes_chianti_response.pro
-#   the response fits is always called "goes_chianti_response_latest.fits" now
-#   Version have here is from 21-05-2022 and v10 CHIANTI:
-#       https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/goes_chianti_response_latest.fits
-#
-#   Input:
-#       fl - GOES/XRS flux in long channel, 1-8\AA no scaling, Wm^{-2}
-#       fs - GOES/XRS flux in short channel,0.5-4\AA scaling, Wm^{-2}
-#            Single number, or array
-#       sat - Which GOES satellite to use? (default 15)
-#       cor_not_pho: - Use coronal not photospheric abundances (default True)
-#   Output:
-#       TMK - Temperature in MK
-#       EM  - Emission Measure in cm^{-3}
-# 
+    """
+    Returns the temperature and emission measure for ratio of fluxes in short/long of GOES/XRS channels.
+
+    This function is based on the script at https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/goes_tem_calc.pro
+    The response is calculated in sswidl:
+    https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/buildresponse/goes_chianti_response.pro
+    The response fits is always called "goes_chianti_response_latest.fits" now.
+    Version have here is from 21-05-2022 and v10 CHIANTI:
+    https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/goes_chianti_response_latest.fits
+
+    Parameters:
+    fl (float or array): GOES/XRS flux in long channel, 1-8\AA no scaling, Wm^{-2}.
+    fs (float or array): GOES/XRS flux in short channel,0.5-4\AA scaling, Wm^{-2}.
+    sat (int, optional): Which GOES satellite to use? Defaults to 15.
+    cor_not_pho (bool, optional): Use coronal not photospheric abundances. Defaults to True.
+    old_ver (bool, optional): Use previous responses of 20200812 + wrong G13/15 short. Defaults to False.
+
+    Returns:
+    tmk (numpy.ndarray): Temperature in MK.
+    em (numpy.ndarray): Emission Measure in cm^{-3}.
+    """
 #   NOTE -  No longer need scaling for GOES16/17 as was correct but GOES13/15 short resp wrong (now fixed)
 # 
 
@@ -203,26 +232,28 @@ def get_tem_old(fl,fs,sat=15,cor_not_pho=True,old_ver=False):
     em[tmk <= 1.0001]=np.nan
 
     return tmk, em
-
 #-----------------------------------------------
 #-----------------------------------------------
 
 def get_resprat(sat=15,cor_not_pho=True,old_ver=False):
+    """
+    Returns the ratio of temperature response and temperature binning in MK for GOES/XRS channels.
 
-#   Response calculated in sswidl:
-#       https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/buildresponse/goes_chianti_response.pro
-#   the response fits is always called "goes_chianti_response_latest.fits" now
-#   Version have here is from 21-05-2022 and v10 CHIANTI:
-#       https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/goes_chianti_response_latest.fits
-# 
-#   Input :
-#       sat - Which GOES satellite to use? (default 15)
-#       cor_not_pho: - Use coronal not photospheric abundances (default True)
-#       old_ver - Use previous responses of 20200812 + wrong G13/15: (default False) - just for testing
-#   Output:
-#       resprat - Ratio of TR_(0.5-4) / TR_(1-8)
-#       resptmk - Temp binning of TR ratio in MK
-# 
+    The response is calculated in sswidl:
+    https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/buildresponse/goes_chianti_response.pro
+    The response fits is always called "goes_chianti_response_latest.fits" now.
+    Version have here is from 21-05-2022 and v10 CHIANTI:
+    https://hesperia.gsfc.nasa.gov/ssw/gen/idl/synoptic/goes/goes_chianti_response_latest.fits
+
+    Parameters:
+    sat (int, optional): Which GOES satellite to use? Defaults to 15.
+    cor_not_pho (bool, optional): Use coronal not photospheric abundances. Defaults to True.
+    old_ver (bool, optional): Use previous responses of 20200812 + wrong G13/15 short. Defaults to False.
+
+    Returns:
+    resprat (numpy.ndarray): Ratio of TR_(0.5-4) / TR_(1-8).
+    resptmk (numpy.ndarray): Temperature binning of TR ratio in MK.
+    """
     
     if old_ver:
         rfile='goes_chianti_resp_20200812.fits'
@@ -242,4 +273,5 @@ def get_resprat(sat=15,cor_not_pho=True,old_ver=False):
     resprat=respdat["FSHORT_"+abdun][sat-1]/respdat["FLONG_"+abdun][sat-1]
     
     return resprat, resptmk
-# -------------------------------
+#-----------------------------------------------
+#-----------------------------------------------
