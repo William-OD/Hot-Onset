@@ -15,24 +15,23 @@ from sunpy.net import attrs as a
 
 import pandas as pd
 
-import goesxrs_temp as gtem #from Ian's functions
-import Onsets_temp as onsets
+import Scripts.goesxrs_temp as gtem #from Ian's functions
+import Scripts.Onsets_temp as onsets
 
 import warnings #Need to remove for future
 warnings.filterwarnings("ignore", module="sunpy.timeseries.timeseriesbase")
 
-data_dir = r"D:\MastersProj\Data\goes15"         #Directory to read in GOES data from
-hek_dir = r"D:\MastersProj\Data\goes15\HEK_Data" #Directory to read in HEK data from
-onset_length = 60                                #Time of fixed onset in seconds
+# data_dir = r"D:\MastersProj\Data\goes15"         #Directory to read in GOES data from
+# hek_dir = r"D:\MastersProj\Data\goes15\HEK_Data" #Directory to read in HEK data from
+# onset_length = 60                                #Time of fixed onset in seconds
 
 
-def print_fl_info(fl_hek_start, fl_hek_end, fl_class):
+def print_fl_info(fl_hek_start, fl_class):
     """
     Prints information about a flare event.
 
     Parameters:
     fl_hek_start (str): The start time of the flare event.
-    fl_hek_end (str): The end time of the flare event.
     fl_class (str): The class of the flare event.
 
     Returns:
@@ -63,7 +62,8 @@ def load_timeseries(data_dir, fl_hek_start, fl_hek_end):
     yr_str = flare_time.start.datetime.date().strftime("%Y")
     mnth_str = flare_time.start.datetime.date().strftime("%m")
     date_path = os.path.join(yr_str, mnth_str)
-    fl_path = os.path.join(data_dir, date_path,f'*sci_gxrs-l2-irrad_g15_d*{day_string}*.nc')
+    fl_path = os.path.join(data_dir, date_path,f'*sci_gxrs-l2-irrad_g15_d*{day_string}*.nc').replace("\\", "/")
+    print(fl_path)
 
     if Time(fl_hek_start).datetime.time() <= time(hour=1, minute=0, second=0):
         day_str_prev = (Time(fl_hek_start) - TimeDelta(1, format = 'jd')).datetime.date().strftime("%Y%m%d")
@@ -79,7 +79,7 @@ def load_timeseries(data_dir, fl_hek_start, fl_hek_end):
     return g15, flare_time
 
 
-def pre_process_timeseries(g15, flare_time):
+def pre_process_timeseries(g15):
     """
     Preprocesses the flare data into a time series format.
 
@@ -93,27 +93,32 @@ def pre_process_timeseries(g15, flare_time):
             - df_long (Series): A pandas series object containing the preprocessed long wavelength data.
     """
 # Load flare into time series
-    g_tims = g15.index
+    print("Test1")
     g_short = g15.quantity("xrsa").value 
     g_long = g15.quantity("xrsb").value
     g_short_flag = g15.quantity("xrsa_quality").value 
     g_long_flag = g15.quantity("xrsb_quality").value 
 
 # Create a Boolean mask where any flags are located
+    print("Test2")
     mask_long = g_long_flag != 0
     mask_short = g_short_flag != 0
 
 # Set the corresponding values in g_short and g_long to NaN
+    print("Test3")
     g_short[mask_short] = np.nan
     g_long[mask_long] = np.nan
 
 # Set sub-zero values not picked up by flags to nans
+    print("Test4")
     mask_short_mask = g_short <= 0 
     g_short[mask_short_mask] = np.nan 
 
 # Load into dataframes
-    df_long = pd.Series(g_long, index = pd.DatetimeIndex(g15.index))
-    df_short = pd.Series(g_short, index = pd.DatetimeIndex(g15.index))
+    print("Test5")
+    df_long = pd.Series(g_long, index = pd.DatetimeIndex(g15.data.index))
+    df_short = pd.Series(g_short, index = pd.DatetimeIndex(g15.data.index))
+    print("Test6")
 
     return df_short, df_long
 
@@ -290,8 +295,7 @@ def set_nan_values(filenotfound_flag, index_flag_err, flare_data):
                                                 'IndexError Flag': [index_flag_err]})], 
                      ignore_index=True)
 
-
-def process_data(data_dir, hek_dir, output_dir, onset_length=60, sigma=4):
+def process_data(data_dir, hek_dir, output_dir, onset_length = 60, sigma = 4):
     """
     Process the data for GOES-15 flares. Saves data to a specified csv file.
 
@@ -305,28 +309,33 @@ def process_data(data_dir, hek_dir, output_dir, onset_length=60, sigma=4):
     Returns:
         None
     """
-    # Rest of the code...
-def process_data(data_dir, hek_dir, output_dir, onset_length = 60, sigma = 4):
 # Looping through all goes-15 flares in directory
-    flares_df = pd.read_csv("GOES15_HEK_Data.csv")
+    flares_df = pd.read_csv(hek_dir)
     flare_data = pd.DataFrame(columns = [])
     for index, row in flares_df.iterrows():
-        print_fl_info(row['event_starttime'], row['event_endtime'], row['fl_goescls'])
+        print_fl_info(row['event_starttime'], row['fl_goescls'])
+        print("The flare is of class: " + row['fl_goescls'])
         try:
+            print("Loading Timeseries Data...")
         # Loading Timeseries Data from file in given data directory
             g15, flare_time = load_timeseries(data_dir, row['event_starttime'], row['event_endtime'])
         # Pre-processing the data - removing flagged data points
-            df_short, df_long = pre_process_timeseries(g15, flare_time)
+            print("Pre-processing Timeseries Data...")
+            df_short, df_long = pre_process_timeseries(g15)
         # Background subtracting the data
-            short_backsub, long_backsub, bck_startt, bck_endt, bck_short_std, bck_long_std, bck_flag = backsub_timeseries(df_short, df_long, row['event_starttime'], row['event_peaktime'], flare_time)
+            print("Background Subtracting Timeseries Data...")
+            short_backsub, long_backsub, bck_startt, bck_endt, bck_short_std, bck_long_std, bck_flag = backsub_timeseries(df_short, df_long, row['event_starttime'], flare_time)
         # Calculating peak time and flux
+            print("Calculating Peak Time and Flux...")
             true_peak, long_peakfl_18 = calc_peak(long_backsub, flare_time)
             short_peakt, _ = calc_peak(short_backsub, flare_time)
         # Calculating onset start time
+            print("Calculating Onset Start Time...")
             onset_start = find_onset_start(short_backsub, long_backsub, bck_endt, true_peak, bck_short_std, bck_long_std, sigma = 4) 
             #NOTE: 4 sigma threshold for both channels, defaulted at 4 but can be altered.
 
         # Calculating fractional onset end times
+            print("Calculating Fractional Onset End Times...")
             fractions = [8, 6, 4, 3, 2, 3/2, 4/3] # NOTE: These are the reciprocal fractions of the onset length
             endt_values = {}
             timedelta_values = {}
@@ -356,7 +365,7 @@ def process_data(data_dir, hek_dir, output_dir, onset_length = 60, sigma = 4):
                 tmk_peaks, em_peaks = calculate_temperature(short_backsub, long_backsub, short_peakt)
 
                 # Calculating max flare temperature
-                endt_half = endt_values[1/2]
+                endt_half = endt_values[2]
                 trunc_054_tem_max = short_backsub.truncate(endt_half, Time(true_peak).datetime)
                 trunc_18_tem_max = long_backsub.truncate(endt_half, Time(true_peak).datetime)
                 tmk_maxx, em_maxx = gtem.get_tem_old(trunc_18_tem_max, trunc_054_tem_max)
@@ -385,36 +394,36 @@ def process_data(data_dir, hek_dir, output_dir, onset_length = 60, sigma = 4):
                                                             'Peak EM Short': [em_peaks], 
                                                             'Flare Max Temp': [tmk_max], 
                                                             'Flare Max EM': [em_max], 
-                                                            'Temp 1/8': [tmk_values[1/8]], 
-                                                            'Temp 1/8 Upper': [tmk_err_upper[1/8]], 
-                                                            'Temp 1/8 Lower': [tmk_err_lower[1/8]],
-                                                            'EM 1/8': [em_values[1/8]], 
-                                                            'EM 1/8 Error': [em_err[1/8]], 
-                                                            'Tdelta 1/8': [timedelta_values[1/8]],
-                                                            'Temp 1/6': [tmk_values[1/6]], 
-                                                            'Temp 1/6 Upper': [tmk_err_upper[1/6]], 
-                                                            'Temp 1/6 Lower': [tmk_err_lower[1/6]], 
-                                                            'EM 1/6': [em_values[1/6]], 
-                                                            'EM 1/6 Error': [em_err[1/6]], 
-                                                            'Tdelta 1/6': [timedelta_values[1/6]],
-                                                            'Temp 1/4': [tmk_values[1/4]], 
-                                                            'Temp 1/4 Upper': [tmk_err_upper[1/4]], 
-                                                            'Temp 1/4 Lower': [tmk_err_lower[1/4]],
-                                                            'EM 1/4': [em_values[1/4]], 
-                                                            'EM 1/4 Error': [em_err[1/4]], 
-                                                            'Tdelta 1/4': [timedelta_values[1/4]],
-                                                            'Temp 1/3': [tmk_values[1/3]], 
-                                                            'Temp 1/3 Upper': [tmk_err_upper[1/3]], 
-                                                            'Temp 1/3 Lower': [tmk_err_lower[1/3]], 
-                                                            'EM 1/3': [em_values[1/3]], 
-                                                            'EM 1/3 Error': [em_err[1/3]],
-                                                            'Tdelta 1/3':[timedelta_values[1/3]],
-                                                            'Temp 1/2': [tmk_values[1/2]], 
-                                                            'Temp 1/2 Upper': [tmk_err_upper[1/2]], 
-                                                            'Temp 1/2 Lower': [tmk_err_lower[1/2]], 
-                                                            'EM 1/2': [em_values[1/2]], 
-                                                            'EM 1/2 Error': [em_err[1/2]], 
-                                                            'Tdelta 1/2': [timedelta_values[1/2]],
+                                                            'Temp 1/8': [tmk_values[8]], 
+                                                            'Temp 1/8 Upper': [tmk_err_upper[8]], 
+                                                            'Temp 1/8 Lower': [tmk_err_lower[8]],
+                                                            'EM 1/8': [em_values[8]], 
+                                                            'EM 1/8 Error': [em_err[8]], 
+                                                            'Tdelta 1/8': [timedelta_values[8]],
+                                                            'Temp 1/6': [tmk_values[6]], 
+                                                            'Temp 1/6 Upper': [tmk_err_upper[6]], 
+                                                            'Temp 1/6 Lower': [tmk_err_lower[6]], 
+                                                            'EM 1/6': [em_values[6]], 
+                                                            'EM 1/6 Error': [em_err[6]], 
+                                                            'Tdelta 1/6': [timedelta_values[6]],
+                                                            'Temp 1/4': [tmk_values[4]], 
+                                                            'Temp 1/4 Upper': [tmk_err_upper[4]], 
+                                                            'Temp 1/4 Lower': [tmk_err_lower[4]],
+                                                            'EM 1/4': [em_values[4]], 
+                                                            'EM 1/4 Error': [em_err[4]], 
+                                                            'Tdelta 1/4': [timedelta_values[4]],
+                                                            'Temp 1/3': [tmk_values[3]], 
+                                                            'Temp 1/3 Upper': [tmk_err_upper[3]], 
+                                                            'Temp 1/3 Lower': [tmk_err_lower[3]], 
+                                                            'EM 1/3': [em_values[3]], 
+                                                            'EM 1/3 Error': [em_err[3]],
+                                                            'Tdelta 1/3':[timedelta_values[3]],
+                                                            'Temp 1/2': [tmk_values[2]], 
+                                                            'Temp 1/2 Upper': [tmk_err_upper[2]], 
+                                                            'Temp 1/2 Lower': [tmk_err_lower[2]], 
+                                                            'EM 1/2': [em_values[2]], 
+                                                            'EM 1/2 Error': [em_err[2]], 
+                                                            'Tdelta 1/2': [timedelta_values[2]],
                                                             'Background Flag': [bck_flag], 
                                                             'FileNotFound Flag':[filenotfound_flag], 
                                                             'IndexError Flag': [index_flag_err]
@@ -424,7 +433,7 @@ def process_data(data_dir, hek_dir, output_dir, onset_length = 60, sigma = 4):
             filenotfound_flag = True
             index_flag_err = False
             print("NO FILE FOUND")
-            print("ERROR, NAN ROW PLACED")
+            print("ERROR: ValueError - NAN ROW PLACED")
             print("---------------------------------------")
             flare_data = set_nan_values(filenotfound_flag, index_flag_err, flare_data)
             continue
@@ -432,24 +441,22 @@ def process_data(data_dir, hek_dir, output_dir, onset_length = 60, sigma = 4):
         except IndexError:
             filenotfound_flag = False
             index_flag_err = True
-            print("ERROR, NAN ROW PLACED")
+            print("ERROR: IndexError - NAN ROW PLACED")
             print("---------------------------------------")
             flare_data = set_nan_values(filenotfound_flag, index_flag_err, flare_data)
             continue
         except:
             filenotfound_flag = False
             index_flag_err = False
-            print("ERROR, NAN ROW PLACED")
+            print("ERROR: Unknown Error - NAN ROW PLACED")
             print("---------------------------------------")
             flare_data = set_nan_values(filenotfound_flag, index_flag_err, flare_data)
             continue
 
 
-        if len(flare_data) == len(flares_df):
-            full_data = pd.concat([flares_df, flare_data],axis = 1)
-        else:
-            print("ERROR, data lengths do not match")
+    if len(flare_data) == len(flares_df):
+        full_data = pd.concat([flares_df, flare_data],axis = 1)
+    else:
+        print("ERROR, data lengths do not match")
 
-        full_data.to_csv(output_dir)
-
-process_data(data_dir, '', "Test_run_post_refactor.csv", onset_length = 60, sigma = 4)
+    full_data.to_csv(output_dir)

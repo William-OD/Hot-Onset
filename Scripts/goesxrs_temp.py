@@ -56,10 +56,10 @@ def get_resps(sat=15,cor_not_pho=True,old_ver=False):
     # Check if old version is to be used
     if old_ver:
         # Use old response file
-        rfile='goes_chianti_resp_20200812.fits'
+        rfile='Response_Functions/goes_chianti_resp_20200812.fits' # NOTE: Only works if files are located in Repsonse_Functions subdirectory
     else:
         # Use latest response file
-        rfile='goes_chianti_response_latest.fits'
+        rfile='Response_Functions/goes_chianti_response_latest.fits' # NOTE: Only works if files are located in Repsonse_Functions subdirectory
     
     # Open the response file
     hdulist = fits.open(rfile)

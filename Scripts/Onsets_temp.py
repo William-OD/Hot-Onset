@@ -14,7 +14,7 @@ from datetime import datetime
 from sunpy.net import attrs as a
 from sunpy.net import Fido
 from scipy import signal
-import goesxrs_temp as gtem
+import Scripts.goesxrs_temp as gtem
 
 def data_download(fl_data, raw_data_dir):
     """
@@ -22,6 +22,9 @@ def data_download(fl_data, raw_data_dir):
     
     Parameters:
     fl_data (DataFrame): A DataFrame containing flare data with start, peak, and end times.
+
+    Returns:
+    None
     """
     
     #Imports one row of a table with start, peak, end times..
