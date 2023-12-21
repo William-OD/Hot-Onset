@@ -56,8 +56,7 @@ Note this guide is for setting up the tool from scratch. If you are not wanting 
 ## Licences
 
 ## Statement of Work
-Usage of all content in this repository was created and owned by  William O'Donnell (University of Glasgow), and is freely available for research purposes so long as creditation is given. This is with exception of:
-* The 'Code/goesxrs_temp.py' file whose original author was Dr Iain Hannah (University of Glasgow), which was lightly edited to include uncertainty calculations and some data handling (original repository found at: https://github.com/ianan/xrs_example).
+Usage of all content in this repository was created and owned by  William O'Donnell (University of Glasgow), and is freely available for research purposes so long as creditation is given. This is with exception of the code in `Code/goesxrs_temp.py` whose original author was Dr Iain Hannah (University of Glasgow), which was lightly edited to include uncertainty calculations and some data handling (original repository found at: https://github.com/ianan/xrs_example).
 
 ## TO DO
  0. Add in functionality to alter output filenames based on a label from user input. (e.g. "GOES15_HEK_Data.csv" -> "GOES15_HEK_Data_2010.csv")
