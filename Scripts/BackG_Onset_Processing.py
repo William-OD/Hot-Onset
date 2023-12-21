@@ -93,32 +93,26 @@ def pre_process_timeseries(g15):
             - df_long (Series): A pandas series object containing the preprocessed long wavelength data.
     """
 # Load flare into time series
-    print("Test1")
     g_short = g15.quantity("xrsa").value 
     g_long = g15.quantity("xrsb").value
     g_short_flag = g15.quantity("xrsa_quality").value 
     g_long_flag = g15.quantity("xrsb_quality").value 
 
 # Create a Boolean mask where any flags are located
-    print("Test2")
     mask_long = g_long_flag != 0
     mask_short = g_short_flag != 0
 
 # Set the corresponding values in g_short and g_long to NaN
-    print("Test3")
     g_short[mask_short] = np.nan
     g_long[mask_long] = np.nan
 
 # Set sub-zero values not picked up by flags to nans
-    print("Test4")
     mask_short_mask = g_short <= 0 
     g_short[mask_short_mask] = np.nan 
 
 # Load into dataframes
-    print("Test5")
     df_long = pd.Series(g_long, index = pd.DatetimeIndex(g15.data.index))
     df_short = pd.Series(g_short, index = pd.DatetimeIndex(g15.data.index))
-    print("Test6")
 
     return df_short, df_long
 
@@ -316,26 +310,20 @@ def process_data(data_dir, hek_dir, output_dir, onset_length = 60, sigma = 4):
         print_fl_info(row['event_starttime'], row['fl_goescls'])
         print("The flare is of class: " + row['fl_goescls'])
         try:
-            print("Loading Timeseries Data...")
         # Loading Timeseries Data from file in given data directory
             g15, flare_time = load_timeseries(data_dir, row['event_starttime'], row['event_endtime'])
         # Pre-processing the data - removing flagged data points
-            print("Pre-processing Timeseries Data...")
             df_short, df_long = pre_process_timeseries(g15)
         # Background subtracting the data
-            print("Background Subtracting Timeseries Data...")
             short_backsub, long_backsub, bck_startt, bck_endt, bck_short_std, bck_long_std, bck_flag = backsub_timeseries(df_short, df_long, row['event_starttime'], flare_time)
         # Calculating peak time and flux
-            print("Calculating Peak Time and Flux...")
             true_peak, long_peakfl_18 = calc_peak(long_backsub, flare_time)
             short_peakt, _ = calc_peak(short_backsub, flare_time)
         # Calculating onset start time
-            print("Calculating Onset Start Time...")
             onset_start = find_onset_start(short_backsub, long_backsub, bck_endt, true_peak, bck_short_std, bck_long_std, sigma = 4) 
             #NOTE: 4 sigma threshold for both channels, defaulted at 4 but can be altered.
 
         # Calculating fractional onset end times
-            print("Calculating Fractional Onset End Times...")
             fractions = [8, 6, 4, 3, 2, 3/2, 4/3] # NOTE: These are the reciprocal fractions of the onset length
             endt_values = {}
             timedelta_values = {}
