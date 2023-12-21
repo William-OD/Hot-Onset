@@ -120,8 +120,14 @@ while True:
         break
 
 # TODO
-# 1. Add in the option to change filename of output HEK file and output onset file (but not the directory).
-# 2. Check over general customisation of the program. Any values that are non-fixed and could be expermineted with
-# 3. Update in readme file (especially the setup instructions for downlaoding data and setting up repo). Outlining customisation options.
-# 4. Add licences
-# 5. Turn the GUI into a script.
+# 0. Add in functionality to alter output filenames based on a label from user input. (e.g. "GOES15_HEK_Data.csv" -> "GOES15_HEK_Data_2010.csv")
+# 1. Add in functionality to read data from goes multi-directory format (year/month) and also a single directory format (just files).
+# 2. Check over general customization of the program. Any values that are non-fixed and could be experimented with.
+# 3. Add in functionality to not rely on first, last in the data directory when generating HEK file. Instead, create a list of all flare files and specifically search for those (consider flares spanning two files).
+# 4. Bug checking, assess input validation procedures and make robust.
+# 5. Add in the option to change the filename of the output HEK file and output onset file (but not the directory).
+# 6. Update the readme file (especially the setup instructions for downloading data and setting up the repo). Outline customization options.
+# 7. Add license.
+# 8. Add in functionality for multi-satellite support
+
+    
