@@ -58,3 +58,14 @@ Note this guide is for setting up the tool from scratch. If you are not wanting 
 ## Statement of Work
 Usage of all content in this repository was created and owned by  William O'Donnell (University of Glasgow), and is freely available for research purposes so long as creditation is given. This is with exception of:
 * The 'Code/goesxrs_temp.py' file whose original author was Dr Iain Hannah (University of Glasgow), which was lightly edited to include uncertainty calculations and some data handling (original repository found at: https://github.com/ianan/xrs_example).
+
+## TO DO
+ 0. Add in functionality to alter output filenames based on a label from user input. (e.g. "GOES15_HEK_Data.csv" -> "GOES15_HEK_Data_2010.csv")
+ 1. Add in functionality to read data from goes multi-directory format (year/month) and also a single directory format (just files).
+ 2. Check over general customization of the program. Any values that are non-fixed and could be experimented with.
+ 3. Add in functionality to not rely on first, last in the data directory when generating HEK file. Instead, create a list of all flare files and specifically search for those (consider flares spanning two files).
+ 4. Bug checking, assess input validation procedures and make robust.
+ 5. Add in the option to change the filename of the output HEK file and output onset file (but not the directory).
+ 6. Update the readme file (especially the setup instructions for downloading data and setting up the repo). Outline customization options.
+ 7. Add licence.
+ 8. Add in functionality for multi-satellite support. (GOES 3-14, 16-17).
