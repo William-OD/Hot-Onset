@@ -109,8 +109,7 @@ while True:
         background_onset()
     elif program_number == "3":
         print("You have selected to run both programs 1 and 2.")
-        generate_flare_database()
-        background_onset()
+        both_programs()
         print("Program 1 and 2 have been completed.")
 
     elif program_number == "exit":
